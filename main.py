@@ -125,20 +125,27 @@ def reset_game():
 # 화면 그리기 함수
 # =========================
 
-def draw_game():
-    """
-    현재 게임 상태를 화면에 그리는 함수
-    """
-    screen.fill(BLACK)          # 화면 전체를 배경색으로 칠함
 
-    # 상단 정보 표시
+def draw_start_page():
+    screen.fill(BLACK)
+
+    draw_text("Snake Portal Game", SCREEN_WIDTH // 2, 170, center=True)
+    draw_text("Press ENTER to Start", SCREEN_WIDTH // 2, 250, center=True)
+    draw_text("Use Arrow Keys or WASD", SCREEN_WIDTH // 2, 300, center=True)
+    draw_text("SPACE: Pause / R: Restart / ESC: Quit", SCREEN_WIDTH // 2, 340, center=True)
+
+    pygame.display.flip()
+
+
+def draw_playing_page():
+    screen.fill(BLACK)
+
     draw_text(f"Score: {score}", SCREEN_WIDTH * 0.15, 30, center=True)
     draw_text(f"High Score: {high_score}", SCREEN_WIDTH * 0.50, 30, center=True)
     draw_text(f"State: {game_state}", SCREEN_WIDTH * 0.85, 30, center=True)
 
-    offset_y = 60               # 상단 정보창 아래부터 게임 영역 시작
+    offset_y = 60
 
-    # 게임 영역 테두리 그리기
     pygame.draw.rect(
         screen,
         GRAY,
@@ -146,7 +153,6 @@ def draw_game():
         2
     )
 
-    # 먹이 그리기
     fx, fy = food
     pygame.draw.rect(
         screen,
@@ -154,7 +160,6 @@ def draw_game():
         (fx * CELL_SIZE, fy * CELL_SIZE + offset_y, CELL_SIZE, CELL_SIZE)
     )
 
-    # 포탈 그리기
     for px, py in portals:
         pygame.draw.ellipse(
             screen,
@@ -162,32 +167,48 @@ def draw_game():
             (px * CELL_SIZE, py * CELL_SIZE + offset_y, CELL_SIZE, CELL_SIZE)
         )
 
-    # 뱀 그리기
     for i, (x, y) in enumerate(snake):
-        # 첫 번째 칸은 머리, 나머지는 몸통
         color = BLUE if i == 0 else GREEN
-
         pygame.draw.rect(
             screen,
             color,
             (x * CELL_SIZE, y * CELL_SIZE + offset_y, CELL_SIZE, CELL_SIZE)
         )
 
-    # 시작 화면 안내 문구
-    if game_state == "start":
-        draw_text("Press ENTER to Start", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, center=True)
-
-    # 일시정지 화면 안내 문구
-    elif game_state == "paused":
-        draw_text("Paused - Press SPACE", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, center=True)
-
-    # 게임 오버 화면 안내 문구
-    elif game_state == "over":
-        draw_text("Game Over", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 25, center=True)
-        draw_text("Press R to Restart", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 15, center=True)
-
-    # 실제 화면 업데이트
     pygame.display.flip()
+
+
+def draw_paused_page():
+    draw_playing_page()
+
+    draw_text("Paused", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 20, center=True)
+    draw_text("Press SPACE to Continue", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 20, center=True)
+
+    pygame.display.flip()
+
+
+def draw_game_over_page():
+    screen.fill(BLACK)
+
+    draw_text("Game Over", SCREEN_WIDTH // 2, 170, center=True)
+    draw_text(f"Final Score: {score}", SCREEN_WIDTH // 2, 240, center=True)
+    draw_text(f"High Score: {high_score}", SCREEN_WIDTH // 2, 285, center=True)
+    draw_text("Press R to Restart", SCREEN_WIDTH // 2, 350, center=True)
+    draw_text("Press ESC to Quit", SCREEN_WIDTH // 2, 390, center=True)
+
+    pygame.display.flip()
+
+
+def draw_screen():
+    if game_state == "start":
+        draw_start_page()
+    elif game_state == "playing":
+        draw_playing_page()
+    elif game_state == "paused":
+        draw_paused_page()
+    elif game_state == "game_over":
+        draw_game_over_page()
+
 
 # =========================
 # 뱀, 먹이, 포탈, 추가로 지정한 위치와 겹치지 않는 빈 칸을 무작위로 반환하는 함수
@@ -371,4 +392,4 @@ while True:
         move_snake()
 
     # 매 프레임 화면 다시 그리기
-    draw_game()
+    draw_screen()
