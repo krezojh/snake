@@ -63,15 +63,16 @@ speed = 7                  # 게임 속도
 # 글자 출력 함수
 # =========================
 
-def draw_text(text, x, y, color=WHITE):
-    """
-    화면에 글자를 출력하는 함수
-    text: 출력할 글자
-    x, y: 출력 위치
-    color: 글자 색
-    """
+def draw_text(text, x, y, color=WHITE, center=False):
     img = font.render(text, True, color)
-    screen.blit(img, (x, y))
+    rect = img.get_rect()
+
+    if center:
+        rect.center = (x, y)
+    else:
+        rect.topleft = (x, y)
+
+    screen.blit(img, rect)
 
 
 # =========================
@@ -131,9 +132,9 @@ def draw_game():
     screen.fill(BLACK)          # 화면 전체를 배경색으로 칠함
 
     # 상단 정보 표시
-    draw_text(f"Score: {score}", 10, 15)
-    draw_text(f"High Score: {high_score}", 180, 15)
-    draw_text(f"State: {game_state}", 400, 15)
+    draw_text(f"Score: {score}", SCREEN_WIDTH * 0.15, 30, center=True)
+    draw_text(f"High Score: {high_score}", SCREEN_WIDTH * 0.50, 30, center=True)
+    draw_text(f"State: {game_state}", SCREEN_WIDTH * 0.85, 30, center=True)
 
     offset_y = 60               # 상단 정보창 아래부터 게임 영역 시작
 
@@ -174,16 +175,16 @@ def draw_game():
 
     # 시작 화면 안내 문구
     if game_state == "start":
-        draw_text("Press ENTER to Start", 190, 330)
+        draw_text("Press ENTER to Start", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, center=True)
 
     # 일시정지 화면 안내 문구
     elif game_state == "paused":
-        draw_text("Paused - Press SPACE", 190, 330)
+        draw_text("Paused - Press SPACE", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, center=True)
 
     # 게임 오버 화면 안내 문구
-    elif game_state == "game_over":
-        draw_text("Game Over", 240, 300)
-        draw_text("Press R to Restart", 200, 340)
+    elif game_state == "over":
+        draw_text("Game Over", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 25, center=True)
+        draw_text("Press R to Restart", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 15, center=True)
 
     # 실제 화면 업데이트
     pygame.display.flip()
