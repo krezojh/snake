@@ -168,12 +168,19 @@ def draw_playing_page():
         )
 
     for i, (x, y) in enumerate(snake):
-        color = BLUE if i == 0 else GREEN
+        if i == 0:
+            color = BLUE
+        else:
+            # 몸통이 뒤로 갈수록 초록색이 어두워지는 그라데이션
+            ratio = i / max(1, len(snake) - 1)
+            green_value = int(220 - ratio * 100)
+            color = (80, green_value, 120)
+
         pygame.draw.rect(
             screen,
             color,
             (x * CELL_SIZE, y * CELL_SIZE + offset_y, CELL_SIZE, CELL_SIZE)
-        )
+    )
 
     pygame.display.flip()
 
