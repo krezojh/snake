@@ -10,8 +10,8 @@ pygame.init()
 # =========================
 
 CELL_SIZE = 24          # 한 칸의 크기
-GRID_WIDTH = 25         # 가로 칸 개수
-GRID_HEIGHT = 25        # 세로 칸 개수
+GRID_WIDTH = 20         # 가로 칸 개수
+GRID_HEIGHT = 20        # 세로 칸 개수
 
 SCREEN_WIDTH = CELL_SIZE * GRID_WIDTH          # 게임 화면 가로 크기
 SCREEN_HEIGHT = CELL_SIZE * GRID_HEIGHT + 60   # 상단 정보창 60px 포함한 세로 크기
@@ -44,19 +44,19 @@ GRAY = (70, 70, 70)         # 게임 영역 테두리 색
 # 게임 변수
 # =========================
 
-snake = [(12, 12)]          # 뱀의 위치 목록, 첫 번째 값이 머리
+snake = [(10, 10)]          # 뱀의 위치 목록, 첫 번째 값이 머리
 direction = (1, 0)          # 현재 이동 방향
 next_direction = (1, 0)     # 다음 이동 방향
 
-food = (5, 5)               # 먹이 위치
-portals = [(3, 3), (21, 21)] # 서로 연결된 포탈 2개 위치
+food = (5, 3)               # 먹이 위치
+portals = [(3, 3), (16, 16)] # 서로 연결된 포탈 2개 위치
 
 score = 0                   # 현재 점수
 high_score = 0              # 최고 점수
 food_count = 0              # 먹이를 먹은 횟수
 
 game_state = "start"        # 게임 상태: start, playing, paused, game_over
-speed = 10                  # 게임 속도
+speed = 7                  # 게임 속도
 
 
 # =========================
@@ -110,7 +110,7 @@ def reset_game():
 
     score = 0                   # 점수 초기화
     food_count = 0              # 먹이 횟수 초기화
-    speed = 10                  # 속도 초기화
+    speed = 7                  # 속도 초기화
 
     food = random_empty_cell()  # 먹이 위치 새로 생성
 
@@ -188,6 +188,28 @@ def draw_game():
     # 실제 화면 업데이트
     pygame.display.flip()
 
+# =========================
+# 뱀, 먹이, 포탈, 추가로 지정한 위치와 겹치지 않는 빈 칸을 무작위로 반환하는 함수
+# =========================
+
+def random_empty_cell(extra_blocked=None):
+    
+    if extra_blocked is None:
+        extra_blocked = []
+
+    while True:
+        pos = (
+            random.randint(1, GRID_WIDTH - 2),
+            random.randint(1, GRID_HEIGHT - 2)
+        )
+
+        if (
+            pos not in snake
+            and pos != food
+            and pos not in portals
+            and pos not in extra_blocked
+        ):
+            return pos
 
 # =========================
 # 포탈 처리 함수
@@ -195,22 +217,30 @@ def draw_game():
 
 def handle_portal(head):
     """
-    뱀의 머리가 포탈에 들어갔는지 확인하는 함수
-    들어갔다면 반대쪽 포탈 위치를 반환
+    뱀의 머리가 포탈에 들어갔는지 확인하는 함수.
+    포탈에 들어가면 반대쪽 포탈로 이동하고,
+    사용한 뒤 포탈 위치를 새로 바꾼다.
     """
-    global score
+    global score, portals
 
-    # 첫 번째 포탈에 들어간 경우
     if head == portals[0]:
-        score += 5
-        return portals[1]
+        score += 3
+        exit_pos = portals[1]
+        portals = [
+            random_empty_cell(extra_blocked=[exit_pos]),
+            random_empty_cell(extra_blocked=[exit_pos])
+        ]
+        return exit_pos
 
-    # 두 번째 포탈에 들어간 경우
     elif head == portals[1]:
-        score += 5
-        return portals[0]
+        score += 3
+        exit_pos = portals[0]
+        portals = [
+            random_empty_cell(extra_blocked=[exit_pos]),
+            random_empty_cell(extra_blocked=[exit_pos])
+        ]
+        return exit_pos
 
-    # 포탈에 들어가지 않았으면 원래 위치 유지
     return head
 
 
@@ -270,7 +300,7 @@ def move_snake():
             portals = [random_empty_cell(), random_empty_cell()]
 
         # 먹이를 먹을수록 속도 증가
-        speed = min(20, speed + 0.3)
+        speed = min(15, speed + 0.15)
 
     # 먹이를 먹지 않은 경우
     else:
