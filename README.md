@@ -52,10 +52,3 @@ Python과 pygame으로 만든 Snake Game입니다.
 
 - Python
 - pygame
-
-## 실행 방법
-
-먼저 pygame을 설치합니다.
-
-```bash
-pip install pygame
